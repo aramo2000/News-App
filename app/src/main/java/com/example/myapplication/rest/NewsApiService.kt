@@ -11,7 +11,9 @@ interface NewsApiService {
     @GET("top-headlines")
     suspend fun fetchNews(
         @Query("country") country: String,
-        @Query("apiKey") apiKey: String
+        @Query("apiKey") apiKey: String,
+        @Query("category") category: String="",
+        @Query("q") q: String=""
     ): Response<NewsResponse>
 
 }

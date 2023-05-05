@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.rest.NewsApiService
 import com.example.myapplication.rest.NewsRepo
-import com.example.myapplication.rest.RetrofitHelper
 import com.example.pssexample.models.NewsResponse
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -17,11 +15,29 @@ class DataLoaderViewModel : ViewModel() {
     val articless: LiveData<Result<Response<NewsResponse>>> = _articless
 
     fun loadNews() {
-        val newsApiService: NewsApiService =
-            RetrofitHelper.getInstance().create(NewsApiService::class.java)
         viewModelScope.launch {
             try {
-                val newsResponse = NewsRepo(newsApiService).fetchNews("us", "5a0575c4dcca45ee86873d0648f91869")
+                val newsResponse = NewsRepo().fetchNews("us", "5a0575c4dcca45ee86873d0648f91869", "","")
+                _articless.postValue(Result.success(newsResponse))
+            } catch (e: Exception) {
+                _articless.postValue(Result.error(e))
+            }
+        }
+    }
+    fun loadNewsWithCategories(category: String) {
+        viewModelScope.launch {
+            try {
+                val newsResponse = NewsRepo().fetchNews("us", "5a0575c4dcca45ee86873d0648f91869", category = category.lowercase(), q="")
+                _articless.postValue(Result.success(newsResponse))
+            } catch (e: Exception) {
+                _articless.postValue(Result.error(e))
+            }
+        }
+    }
+    fun loadNewsWithSearch(q: String) {
+        viewModelScope.launch {
+            try {
+                val newsResponse = NewsRepo().fetchNews("us", "5a0575c4dcca45ee86873d0648f91869", category="", q = q)
                 _articless.postValue(Result.success(newsResponse))
             } catch (e: Exception) {
                 _articless.postValue(Result.error(e))
@@ -29,6 +45,8 @@ class DataLoaderViewModel : ViewModel() {
         }
     }
 }
+
+
 
 
 sealed class Result<out T : Any> {
